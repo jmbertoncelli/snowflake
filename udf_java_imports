@@ -1,4 +1,5 @@
 #---------------------------------------------
+# This udf does leverage the google libphone library to validate phone number as well as to extract phone information
 # first using snowsql upload to your snowflake environement the following google library (jar) file (update the source path)
 
 put file:////media/psf/Downloads/libphonenumber-8.5.0.jar @~/;
