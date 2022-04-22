@@ -1,0 +1,62 @@
+#---------------------------------------------
+# first using snowsql upload to your snowflake environement the following google library (jar) file (update the source path)
+
+put file:////media/psf/Downloads/libphonenumber-8.5.0.jar @~/;
+
+#---------------------------------------------
+
+create or replace function goog(f string, o string, c string)
+returns String
+language java
+imports=('@~/libphonenumber-8.5.0.jar')
+handler='GOOGC.goog'
+target_path='@~/goog.jar'
+as
+$$
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+class GOOGC {
+    public static String goog(String f, String o, String c) {
+        PhoneNumber phoneNumber = null;
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        String response = null;
+        
+        switch(f) {
+                // --------------------------                    
+                case "isValidNumber":
+                    try {
+                            phoneNumber = phoneUtil.parse(o, c);
+                        } catch (NumberParseException e) {
+                            response = null;
+                        }        
+                    response = String.valueOf(phoneUtil.isValidNumber(phoneNumber));
+                    break;
+                // --------------------------                    
+                case "getNumberType":
+                    try {
+                            phoneNumber = phoneUtil.parse(o, c);
+                        } catch (NumberParseException e) {
+                            response = null;
+                        }        
+                    response = String.valueOf(phoneUtil.getNumberType(phoneNumber));
+                    break;
+                // --------------------------                    
+                case "getCountryCodeForRegion":
+                    try {
+                            phoneNumber = phoneUtil.parse(o, c);
+                        } catch (NumberParseException e) {
+                            response = null;
+                        }        
+                    response = String.valueOf(phoneUtil.getCountryCodeForRegion(c));
+                    break;
+                // --------------------------                    
+                   };
+                   
+        return response;
+    }
+}
+$$;
+
+### Demo query
+select goog('isValidNumber','6522767481','US') as valid,  goog('getNumberType','6522767481','US') as type,  goog('getCountryCodeForRegion','6522767481','US') as country_code;
